@@ -26,6 +26,7 @@ using namespace DirectX::PackedVector;
 
 const int gNumFrameResources = 3;
 
+//max
 // Lightweight structure stores parameters to draw a shape.  This will
 // vary from app-to-app.
 struct RenderItem
