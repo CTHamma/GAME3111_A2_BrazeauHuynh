@@ -543,6 +543,7 @@ void ShapesApp::BuildShapeGeometry()
 	GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
 	GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
 	GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(0.5f, 0.5f, 3.0f, 20, 20);
+	GeometryGenerator::MeshData cone = geoGen.CreateCylinder(1.0f, 0.0f, 3.0f, 20, 20);
 
 	// We are concatenating all the geometry into one big vertex/index buffer.  So
 	// define the regions in the buffer each submesh covers.
@@ -552,12 +553,14 @@ void ShapesApp::BuildShapeGeometry()
 	UINT gridVertexOffset = (UINT)box.Vertices.size();
 	UINT sphereVertexOffset = gridVertexOffset + (UINT)grid.Vertices.size();
 	UINT cylinderVertexOffset = sphereVertexOffset + (UINT)sphere.Vertices.size();
+	UINT coneVertexOffset = cylinderVertexOffset + (UINT)cylinder.Vertices.size();
 
 	// Cache the starting index for each object in the concatenated index buffer.
 	UINT boxIndexOffset = 0;
 	UINT gridIndexOffset = (UINT)box.Indices32.size();
 	UINT sphereIndexOffset = gridIndexOffset + (UINT)grid.Indices32.size();
 	UINT cylinderIndexOffset = sphereIndexOffset + (UINT)sphere.Indices32.size();
+	UINT coneIndexOffset = cylinderIndexOffset + (UINT)cylinder.Indices32.size();
 
 	// Define the SubmeshGeometry that cover different
 	// regions of the vertex/index buffers.
@@ -582,6 +585,11 @@ void ShapesApp::BuildShapeGeometry()
 	cylinderSubmesh.StartIndexLocation = cylinderIndexOffset;
 	cylinderSubmesh.BaseVertexLocation = cylinderVertexOffset;
 
+	SubmeshGeometry coneSubmesh;
+	coneSubmesh.IndexCount = (UINT)cone.Indices32.size();
+	coneSubmesh.StartIndexLocation = coneIndexOffset;
+	coneSubmesh.BaseVertexLocation = coneVertexOffset;
+
 	// Extract the vertex elements we are interested in and pack the
 	// vertices of all the meshes into one vertex buffer.
 
@@ -589,7 +597,8 @@ void ShapesApp::BuildShapeGeometry()
 		box.Vertices.size() +
 		grid.Vertices.size() +
 		sphere.Vertices.size() +
-		cylinder.Vertices.size();
+		cylinder.Vertices.size() +
+		cone.Vertices.size();
 
 
 	std::vector<Vertex> vertices(totalVertexCount);
@@ -620,12 +629,19 @@ void ShapesApp::BuildShapeGeometry()
 		vertices[k].Color = XMFLOAT4(DirectX::Colors::SteelBlue);
 	}
 
+	for (size_t i = 0; i < cone.Vertices.size(); ++i, ++k)
+	{
+		vertices[k].Pos = cone.Vertices[i].Position;
+		vertices[k].Color = XMFLOAT4(DirectX::Colors::DarkGray);
+	}
+
 
 	std::vector<std::uint16_t> indices;
 	indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
 	indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
 	indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
 	indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
+	indices.insert(indices.end(), std::begin(cone.GetIndices16()), std::end(cone.GetIndices16()));
 
 	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
 	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
@@ -655,6 +671,7 @@ void ShapesApp::BuildShapeGeometry()
 	geo->DrawArgs["grid"] = gridSubmesh;
 	geo->DrawArgs["sphere"] = sphereSubmesh;
 	geo->DrawArgs["cylinder"] = cylinderSubmesh;
+	geo->DrawArgs["cone"] = coneSubmesh;
 
 	mGeometries[geo->Name] = std::move(geo);
 }
@@ -810,7 +827,7 @@ void ShapesApp::BuildRenderItems()
 
 	mAllRitems.push_back(std::move(gridRitem));
 
-	// 4 Pillars
+	// 4 Pillars & 4 Cones
 	UINT objCBIndex = 7;
 
 	for (int i = 0; i < 2; ++i)
@@ -818,14 +835,14 @@ void ShapesApp::BuildRenderItems()
 		auto leftCylRitem = std::make_unique<RenderItem>();
 		auto rightCylRitem = std::make_unique<RenderItem>();
 
-		auto leftSphereRitem = std::make_unique<RenderItem>();
-		auto rightSphereRitem = std::make_unique<RenderItem>();
+		auto leftConeRitem = std::make_unique<RenderItem>();
+		auto rightConeRitem = std::make_unique<RenderItem>();
 
 		XMMATRIX leftCylWorld = XMMatrixScaling(8.0f, 5.0f, 8.0f) * XMMatrixTranslation(-25.0f, 7.5f, -25.0f + i * 50.0f);
 		XMMATRIX rightCylWorld = XMMatrixScaling(8.0f, 5.0f, 8.0f) * XMMatrixTranslation(+25.0f, 7.5f, -25.0f + i * 50.0f);
 
-		//XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i * 5.0f);
-		//XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
+		XMMATRIX leftConeWorld = XMMatrixScaling(5.0f, 5.0f, 5.0f) * XMMatrixTranslation(-25.0f, 22.5f, -25.0f + i * 50.0f);
+		XMMATRIX rightConeWorld = XMMatrixScaling(5.0f, 5.0f, 5.0f) * XMMatrixTranslation(+25.0f, 22.5f, -25.0f + i * 50.0f);
 
 		XMStoreFloat4x4(&leftCylRitem->World, rightCylWorld);
 
@@ -847,29 +864,29 @@ void ShapesApp::BuildRenderItems()
 		rightCylRitem->StartIndexLocation = rightCylRitem->Geo->DrawArgs["cylinder"].StartIndexLocation;
 		rightCylRitem->BaseVertexLocation = rightCylRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
 
-		//XMStoreFloat4x4(&leftSphereRitem->World, leftSphereWorld);
+		XMStoreFloat4x4(&leftConeRitem->World, leftConeWorld);
 
-		//leftSphereRitem->ObjCBIndex = objCBIndex++;
-		//leftSphereRitem->Geo = mGeometries["shapeGeo"].get();
-		//leftSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		//leftSphereRitem->IndexCount = leftSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
-		//leftSphereRitem->StartIndexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
-		//leftSphereRitem->BaseVertexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
+		leftConeRitem->ObjCBIndex = objCBIndex++;
+		leftConeRitem->Geo = mGeometries["shapeGeo"].get();
+		leftConeRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		leftConeRitem->IndexCount = leftConeRitem->Geo->DrawArgs["cone"].IndexCount;
+		leftConeRitem->StartIndexLocation = leftConeRitem->Geo->DrawArgs["cone"].StartIndexLocation;
+		leftConeRitem->BaseVertexLocation = leftConeRitem->Geo->DrawArgs["cone"].BaseVertexLocation;
 
-		//XMStoreFloat4x4(&rightSphereRitem->World, rightSphereWorld);
+		XMStoreFloat4x4(&rightConeRitem->World, rightConeWorld);
 
-		//rightSphereRitem->ObjCBIndex = objCBIndex++;
+		rightConeRitem->ObjCBIndex = objCBIndex++;
 
-		//rightSphereRitem->Geo = mGeometries["shapeGeo"].get();
-		//rightSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		//rightSphereRitem->IndexCount = rightSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
-		//rightSphereRitem->StartIndexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
-		//rightSphereRitem->BaseVertexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
+		rightConeRitem->Geo = mGeometries["shapeGeo"].get();
+		rightConeRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		rightConeRitem->IndexCount = rightConeRitem->Geo->DrawArgs["cone"].IndexCount;
+		rightConeRitem->StartIndexLocation = rightConeRitem->Geo->DrawArgs["cone"].StartIndexLocation;
+		rightConeRitem->BaseVertexLocation = rightConeRitem->Geo->DrawArgs["cone"].BaseVertexLocation;
 
 		mAllRitems.push_back(std::move(leftCylRitem));
 		mAllRitems.push_back(std::move(rightCylRitem));
-		//mAllRitems.push_back(std::move(leftSphereRitem));
-		//mAllRitems.push_back(std::move(rightSphereRitem));
+		mAllRitems.push_back(std::move(leftConeRitem));
+		mAllRitems.push_back(std::move(rightConeRitem));
 	}
 
 	for (int i = 0; i < 5; ++i)
