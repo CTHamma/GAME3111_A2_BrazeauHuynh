@@ -26,7 +26,7 @@ using namespace DirectX::PackedVector;
 
 const int gNumFrameResources = 3;
 
-//max
+
 // Lightweight structure stores parameters to draw a shape.  This will
 // vary from app-to-app.
 struct RenderItem
@@ -756,12 +756,38 @@ void ShapesApp::BuildRenderItems()
 	box3Ritem->BaseVertexLocation = box3Ritem->Geo->DrawArgs["box"].BaseVertexLocation;
 	mAllRitems.push_back(std::move(box3Ritem));
 
+	//front-left wall
+	auto box4Ritem = std::make_unique<RenderItem>();
+
+	XMStoreFloat4x4(&box4Ritem->World, XMMatrixScaling(20.0f, 12.5f, 5.0f) * XMMatrixTranslation(15.0f, 6.25f, 25.0f));
+
+	box4Ritem->ObjCBIndex = 3;
+	box4Ritem->Geo = mGeometries["shapeGeo"].get();
+	box4Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	box4Ritem->IndexCount = box4Ritem->Geo->DrawArgs["box"].IndexCount;
+	box4Ritem->StartIndexLocation = box4Ritem->Geo->DrawArgs["box"].StartIndexLocation;
+	box4Ritem->BaseVertexLocation = box4Ritem->Geo->DrawArgs["box"].BaseVertexLocation;
+	mAllRitems.push_back(std::move(box4Ritem));
+
+	//front-right wall
+	auto box5Ritem = std::make_unique<RenderItem>();
+
+	XMStoreFloat4x4(&box5Ritem->World, XMMatrixScaling(20.0f, 12.5f, 5.0f) * XMMatrixTranslation(-15.0f, 6.25f, 25.0f));
+
+	box5Ritem->ObjCBIndex = 4;
+	box5Ritem->Geo = mGeometries["shapeGeo"].get();
+	box5Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	box5Ritem->IndexCount = box5Ritem->Geo->DrawArgs["box"].IndexCount;
+	box5Ritem->StartIndexLocation = box5Ritem->Geo->DrawArgs["box"].StartIndexLocation;
+	box5Ritem->BaseVertexLocation = box5Ritem->Geo->DrawArgs["box"].BaseVertexLocation;
+	mAllRitems.push_back(std::move(box5Ritem));
+
 	//ground
 	auto gridRitem = std::make_unique<RenderItem>();
 
 	XMStoreFloat4x4(&gridRitem->World, XMMatrixScaling(10.0f, 1.0f, 10.0f) * XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 
-	gridRitem->ObjCBIndex = 3;
+	gridRitem->ObjCBIndex = 5;
 	gridRitem->Geo = mGeometries["shapeGeo"].get();
 	gridRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 

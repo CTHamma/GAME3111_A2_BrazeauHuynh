@@ -1,11 +1,2 @@
-﻿  Camera.cpp
-  d3dApp.cpp
-  d3dUtil.cpp
-  DDSTextureLoader.cpp
-  GameTimer.cpp
-  GeometryGenerator.cpp
-  MathHelper.cpp
-  FrameResource.cpp
-  Week4-6-ShapeComplete.cpp
-  Generating Code...
+﻿  Week4-6-ShapeComplete.cpp
   Assignment2.vcxproj -> C:\Projects\GAME3111_A2_BrazeauHuynh\Assignment2\x64\Debug\Assignment2.exe
