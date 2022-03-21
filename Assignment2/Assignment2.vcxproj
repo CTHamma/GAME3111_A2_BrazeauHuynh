@@ -148,9 +148,6 @@
     <ClCompile Include="..\..\..\GitHub\DirectX\Common\MathHelper.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="Waves.cpp" />
-    <ClCompile Include="Week4-6-ShapeComplete.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Week6-1-BlendApp-Transparency.cpp" />
   </ItemGroup>
   <ItemGroup>

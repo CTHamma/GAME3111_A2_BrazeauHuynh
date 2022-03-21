@@ -582,6 +582,7 @@ void BlendApp::UpdateWaves(const GameTimer& gt)
 
 void BlendApp::LoadTextures()
 {
+	// Textures we will need for our castle
 	auto grassTex = std::make_unique<Texture>();
 	grassTex->Name = "grassTex";
 	grassTex->Filename = L"Textures/grass.dds";
@@ -764,6 +765,8 @@ void BlendApp::BuildShadersAndInputLayout()
 
 void BlendApp::BuildShapeGeometry()
 {
+	// Code was transferred from our week4-6 framework to this one so some changes had to be made
+
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 0);
 	GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
@@ -1170,6 +1173,7 @@ void BlendApp::BuildFrameResources()
 
 void BlendApp::BuildMaterials()
 {
+	// grass material
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
 	grass->MatCBIndex = 0;
@@ -1178,8 +1182,7 @@ void BlendApp::BuildMaterials()
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	grass->Roughness = 0.125f;
 
-	// This is not a good water material definition, but we do not have all the rendering
-	// tools we need (transparency, environment reflection), so we fake it for now.
+	// water material
 	auto water = std::make_unique<Material>();
 	water->Name = "water";
 	water->MatCBIndex = 1;
@@ -1188,6 +1191,7 @@ void BlendApp::BuildMaterials()
 	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	water->Roughness = 0.0f;
 
+	// abstract sci-fi design material
 	auto abstractmat = std::make_unique<Material>();
 	abstractmat->Name = "abstractmat";
 	abstractmat->MatCBIndex = 2;
@@ -1196,6 +1200,7 @@ void BlendApp::BuildMaterials()
 	abstractmat->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	abstractmat->Roughness = 0.25f;
 
+	// stone material for castle walls
 	auto stonewall = std::make_unique<Material>();
 	stonewall->Name = "stonewall";
 	stonewall->MatCBIndex = 3;
@@ -1204,6 +1209,7 @@ void BlendApp::BuildMaterials()
 	stonewall->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	stonewall->Roughness = 0.25f;
 
+	// cobblestone material for pillars
 	auto cobblestone = std::make_unique<Material>();
 	cobblestone->Name = "cobblestone";
 	cobblestone->MatCBIndex = 4;
@@ -1212,6 +1218,7 @@ void BlendApp::BuildMaterials()
 	cobblestone->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	cobblestone->Roughness = 0.25f;
 
+	// wooden gate material
 	auto wooden = std::make_unique<Material>();
 	wooden->Name = "wooden";
 	wooden->MatCBIndex = 5;
@@ -1230,6 +1237,7 @@ void BlendApp::BuildMaterials()
 
 void BlendApp::BuildRenderItems()
 {
+	// Render water
     auto wavesRitem = std::make_unique<RenderItem>();
     wavesRitem->World = MathHelper::Identity4x4();
 	XMStoreFloat4x4(&wavesRitem->World, XMMatrixScaling(5.0f, 1.0f, 5.0f) * XMMatrixTranslation(0.0f, -1.45f, 0.0f));
@@ -1245,6 +1253,7 @@ void BlendApp::BuildRenderItems()
 
 	mRitemLayer[(int)RenderLayer::Transparent].push_back(wavesRitem.get());
 
+	// Render land geometry
     auto landRitem = std::make_unique<RenderItem>();
 	landRitem->World = MathHelper::Identity4x4();
 	XMStoreFloat4x4(&landRitem->World, XMMatrixScaling(20.0f, 1.0f, 20.0f) * XMMatrixTranslation(0.0f, -5.0f, 0.0f));
@@ -1258,8 +1267,9 @@ void BlendApp::BuildRenderItems()
 
 	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(landRitem.get());
 
+	// Render Platform (Initially cube)
 	auto cubeRitem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&cubeRitem->World, XMMatrixTranslation(3.0f, 2.0f, -9.0f));
+	XMStoreFloat4x4(&cubeRitem->World, XMMatrixScaling(6.0f, 0.1f, 6.0f) * XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	cubeRitem->ObjCBIndex = 2;
 	cubeRitem->Mat = mMaterials["abstractmat"].get();
 	cubeRitem->Geo = mGeometries["cubeGeo"].get();
@@ -1387,8 +1397,24 @@ void BlendApp::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(gridRitem.get());
 	mAllRitems.push_back(std::move(gridRitem));
 
+	// center sphere
+	auto SphereRitem = std::make_unique<RenderItem>();
+
+	XMStoreFloat4x4(&SphereRitem->World, XMMatrixScaling(20.0f, 20.0f, 20.0f)* XMMatrixTranslation(0.0f, 15.0f, 0.0f));
+
+	SphereRitem->ObjCBIndex = 10;
+	SphereRitem->Mat = mMaterials["abstractmat"].get();
+	SphereRitem->Geo = mGeometries["shapeGeo"].get();
+	SphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	SphereRitem->IndexCount = SphereRitem->Geo->DrawArgs["sphere"].IndexCount;
+	SphereRitem->StartIndexLocation = SphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
+	SphereRitem->BaseVertexLocation = SphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(SphereRitem.get());
+	mAllRitems.push_back(std::move(SphereRitem));
+
 	// 4 Pillars & 4 Cones
-	UINT objCBIndex = 10;
+	UINT objCBIndex = 11;
 
 	for (int i = 0; i < 2; ++i)
 	{
@@ -1453,68 +1479,6 @@ void BlendApp::BuildRenderItems()
 		mAllRitems.push_back(std::move(leftConeRitem));
 		mAllRitems.push_back(std::move(rightConeRitem));
 	}
-
-	//for (int i = 0; i < 5; ++i)
-	//{
-	//	auto leftCyl2Ritem = std::make_unique<RenderItem>();
-	//	auto rightCyl2Ritem = std::make_unique<RenderItem>();
-
-	//	auto leftSphereRitem = std::make_unique<RenderItem>();
-	//	auto rightSphereRitem = std::make_unique<RenderItem>();
-
-	//	XMMATRIX leftCyl2World = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + i * 5.0f);
-	//	XMMATRIX rightCyl2World = XMMatrixTranslation(+5.0f, 1.5f, -10.0f + i * 5.0f);
-
-	//	XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i * 5.0f);
-	//	XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
-
-	//	XMStoreFloat4x4(&leftCyl2Ritem->World, rightCyl2World);
-
-	//	leftCyl2Ritem->ObjCBIndex = objCBIndex++;
-
-	//	leftCyl2Ritem->Geo = mGeometries["shapeGeo"].get();
-	//	leftCyl2Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//	leftCyl2Ritem->IndexCount = leftCyl2Ritem->Geo->DrawArgs["cylinder"].IndexCount;
-	//	leftCyl2Ritem->StartIndexLocation = leftCyl2Ritem->Geo->DrawArgs["cylinder"].StartIndexLocation;
-	//	leftCyl2Ritem->BaseVertexLocation = leftCyl2Ritem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
-
-	//	XMStoreFloat4x4(&rightCyl2Ritem->World, leftCyl2World);
-
-	//	rightCyl2Ritem->ObjCBIndex = objCBIndex++;
-
-	//	rightCyl2Ritem->Geo = mGeometries["shapeGeo"].get();
-	//	rightCyl2Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//	rightCyl2Ritem->IndexCount = rightCyl2Ritem->Geo->DrawArgs["cylinder"].IndexCount;
-	//	rightCyl2Ritem->StartIndexLocation = rightCyl2Ritem->Geo->DrawArgs["cylinder"].StartIndexLocation;
-	//	rightCyl2Ritem->BaseVertexLocation = rightCyl2Ritem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
-
-	//	XMStoreFloat4x4(&leftSphereRitem->World, leftSphereWorld);
-
-	//	leftSphereRitem->ObjCBIndex = objCBIndex++;
-	//	leftSphereRitem->Geo = mGeometries["shapeGeo"].get();
-	//	leftSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//	leftSphereRitem->IndexCount = leftSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
-	//	leftSphereRitem->StartIndexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
-	//	leftSphereRitem->BaseVertexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
-
-	//	XMStoreFloat4x4(&rightSphereRitem->World, rightSphereWorld);
-
-	//	rightSphereRitem->ObjCBIndex = objCBIndex++;
-
-	//	rightSphereRitem->Geo = mGeometries["shapeGeo"].get();
-	//	rightSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//	rightSphereRitem->IndexCount = rightSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
-	//	rightSphereRitem->StartIndexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
-	//	rightSphereRitem->BaseVertexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
-
-	//	mAllRitems.push_back(std::move(leftCyl2Ritem));
-	//	mAllRitems.push_back(std::move(rightCyl2Ritem));
-	//	mAllRitems.push_back(std::move(leftSphereRitem));
-	//	mAllRitems.push_back(std::move(rightSphereRitem));
-	//}
-	//// All the render items are opaque.
-	//for (auto& e : mAllRitems)
-	//	mOpaqueRitems.push_back(e.get());
 }
 
 void BlendApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
