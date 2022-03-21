@@ -591,19 +591,19 @@ void BlendApp::LoadTextures()
 		mCommandList.Get(), abstractTex->Filename.c_str(),
 		abstractTex->Resource, abstractTex->UploadHeap));
 
-	auto spacestoneTex = std::make_unique<Texture>();
-	spacestoneTex->Name = "spacestoneTex";
-	spacestoneTex->Filename = L"Textures/spacestone.dds";
+	auto stoneTex = std::make_unique<Texture>();
+	stoneTex->Name = "stoneTex";
+	stoneTex->Filename = L"Textures/stonewall.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), spacestoneTex->Filename.c_str(),
-		spacestoneTex->Resource, spacestoneTex->UploadHeap));
+		mCommandList.Get(), stoneTex->Filename.c_str(),
+		stoneTex->Resource, stoneTex->UploadHeap));
 
-	auto patternTex = std::make_unique<Texture>();
-	patternTex->Name = "patternTex";
-	patternTex->Filename = L"Textures/orient.dds";
+	auto cobbleTex = std::make_unique<Texture>();
+	cobbleTex->Name = "cobbleTex";
+	cobbleTex->Filename = L"Textures/cobblestone.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), patternTex->Filename.c_str(),
-		patternTex->Resource, patternTex->UploadHeap));
+		mCommandList.Get(), cobbleTex->Filename.c_str(),
+		cobbleTex->Resource, cobbleTex->UploadHeap));
 
 	auto woodTex = std::make_unique<Texture>();
 	woodTex->Name = "woodTex";
@@ -615,8 +615,8 @@ void BlendApp::LoadTextures()
 	mTextures[grassTex->Name] = std::move(grassTex);
 	mTextures[waterTex->Name] = std::move(waterTex);
 	mTextures[abstractTex->Name] = std::move(abstractTex);
-	mTextures[spacestoneTex->Name] = std::move(spacestoneTex);
-	mTextures[patternTex->Name] = std::move(patternTex);
+	mTextures[stoneTex->Name] = std::move(stoneTex);
+	mTextures[cobbleTex->Name] = std::move(cobbleTex);
 	mTextures[woodTex->Name] = std::move(woodTex);
 }
 
@@ -679,8 +679,8 @@ void BlendApp::BuildDescriptorHeaps()
 	auto grassTex = mTextures["grassTex"]->Resource;
 	auto waterTex = mTextures["waterTex"]->Resource;
 	auto abstractTex = mTextures["abstractTex"]->Resource;
-	auto spacestoneTex = mTextures["spacestoneTex"]->Resource;
-	auto patternTex = mTextures["patternTex"]->Resource;
+	auto stoneTex = mTextures["stoneTex"]->Resource;
+	auto cobbleTex = mTextures["cobbleTex"]->Resource;
 	auto woodTex = mTextures["woodTex"]->Resource;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -706,14 +706,14 @@ void BlendApp::BuildDescriptorHeaps()
 	// sci fi descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = spacestoneTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(spacestoneTex.Get(), &srvDesc, hDescriptor);
+	srvDesc.Format = stoneTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(stoneTex.Get(), &srvDesc, hDescriptor);
 
 	// orient descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = patternTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(patternTex.Get(), &srvDesc, hDescriptor);
+	srvDesc.Format = cobbleTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(cobbleTex.Get(), &srvDesc, hDescriptor);
 
 	// wood descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
@@ -1184,21 +1184,21 @@ void BlendApp::BuildMaterials()
 	abstractmat->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	abstractmat->Roughness = 0.25f;
 
-	auto scifi = std::make_unique<Material>();
-	scifi->Name = "scifi";
-	scifi->MatCBIndex = 3;
-	scifi->DiffuseSrvHeapIndex = 3;
-	scifi->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	scifi->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	scifi->Roughness = 0.25f;
+	auto stonewall = std::make_unique<Material>();
+	stonewall->Name = "stonewall";
+	stonewall->MatCBIndex = 3;
+	stonewall->DiffuseSrvHeapIndex = 3;
+	stonewall->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	stonewall->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	stonewall->Roughness = 0.25f;
 
-	auto orient = std::make_unique<Material>();
-	orient->Name = "orient";
-	orient->MatCBIndex = 4;
-	orient->DiffuseSrvHeapIndex = 4;
-	orient->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	orient->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	orient->Roughness = 0.25f;
+	auto cobblestone = std::make_unique<Material>();
+	cobblestone->Name = "cobblestone";
+	cobblestone->MatCBIndex = 4;
+	cobblestone->DiffuseSrvHeapIndex = 4;
+	cobblestone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	cobblestone->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	cobblestone->Roughness = 0.25f;
 
 	auto wooden = std::make_unique<Material>();
 	wooden->Name = "wooden";
@@ -1211,8 +1211,8 @@ void BlendApp::BuildMaterials()
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
 	mMaterials["abstractmat"] = std::move(abstractmat);
-	mMaterials["scifi"] = std::move(scifi);
-	mMaterials["orient"] = std::move(orient);
+	mMaterials["stonewall"] = std::move(stonewall);
+	mMaterials["cobblestone"] = std::move(cobblestone);
 	mMaterials["wooden"] = std::move(wooden);
 }
 
@@ -1220,7 +1220,7 @@ void BlendApp::BuildRenderItems()
 {
     auto wavesRitem = std::make_unique<RenderItem>();
     wavesRitem->World = MathHelper::Identity4x4();
-	XMStoreFloat4x4(&wavesRitem->World, XMMatrixScaling(2.0f, 1.0f, 2.0f) * XMMatrixTranslation(0.0f, -1.45f, 0.0f));
+	XMStoreFloat4x4(&wavesRitem->World, XMMatrixScaling(5.0f, 1.0f, 5.0f) * XMMatrixTranslation(0.0f, -1.45f, 0.0f));
 	wavesRitem->ObjCBIndex = 0;
 	wavesRitem->Mat = mMaterials["water"].get();
 	wavesRitem->Geo = mGeometries["waterGeo"].get();
@@ -1235,7 +1235,7 @@ void BlendApp::BuildRenderItems()
 
     auto landRitem = std::make_unique<RenderItem>();
 	landRitem->World = MathHelper::Identity4x4();
-	XMStoreFloat4x4(&landRitem->TexTransform, XMMatrixScaling(5.0f, 5.0f, 1.0f));
+	XMStoreFloat4x4(&landRitem->World, XMMatrixScaling(20.0f, 1.0f, 20.0f) * XMMatrixTranslation(0.0f, -5.0f, 0.0f));
 	landRitem->ObjCBIndex = 1;
 	landRitem->Mat = mMaterials["grass"].get();
 	landRitem->Geo = mGeometries["landGeo"].get();
@@ -1244,7 +1244,7 @@ void BlendApp::BuildRenderItems()
     landRitem->StartIndexLocation = landRitem->Geo->DrawArgs["land"].StartIndexLocation;
     landRitem->BaseVertexLocation = landRitem->Geo->DrawArgs["land"].BaseVertexLocation;
 
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(landRitem.get());
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(landRitem.get());
 
 	auto cubeRitem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&cubeRitem->World, XMMatrixTranslation(3.0f, 2.0f, -9.0f));
@@ -1268,7 +1268,7 @@ void BlendApp::BuildRenderItems()
 	XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(50.0f, 12.5f, 5.0f) * XMMatrixTranslation(0.0f, 6.25f, -25.0f));
 
 	boxRitem->ObjCBIndex = 3;
-	boxRitem->Mat = mMaterials["scifi"].get();
+	boxRitem->Mat = mMaterials["stonewall"].get();
 	boxRitem->Geo = mGeometries["shapeGeo"].get();
 	boxRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
@@ -1284,7 +1284,7 @@ void BlendApp::BuildRenderItems()
 	XMStoreFloat4x4(&box2Ritem->World, XMMatrixScaling(5.0f, 12.5f, 50.0f) * XMMatrixTranslation(-25.0f, 6.25f, 0.0f));
 
 	box2Ritem->ObjCBIndex = 4;
-	box2Ritem->Mat = mMaterials["scifi"].get();
+	box2Ritem->Mat = mMaterials["stonewall"].get();
 	box2Ritem->Geo = mGeometries["shapeGeo"].get();
 	box2Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	box2Ritem->IndexCount = box2Ritem->Geo->DrawArgs["box"].IndexCount;
@@ -1300,7 +1300,7 @@ void BlendApp::BuildRenderItems()
 	XMStoreFloat4x4(&box3Ritem->World, XMMatrixScaling(5.0f, 12.5f, 50.0f) * XMMatrixTranslation(25.0f, 6.25f, 0.0f));
 
 	box3Ritem->ObjCBIndex = 5;
-	box3Ritem->Mat = mMaterials["scifi"].get();
+	box3Ritem->Mat = mMaterials["stonewall"].get();
 	box3Ritem->Geo = mGeometries["shapeGeo"].get();
 	box3Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	box3Ritem->IndexCount = box3Ritem->Geo->DrawArgs["box"].IndexCount;
@@ -1316,7 +1316,7 @@ void BlendApp::BuildRenderItems()
 	XMStoreFloat4x4(&box4Ritem->World, XMMatrixScaling(20.0f, 12.5f, 5.0f) * XMMatrixTranslation(15.0f, 6.25f, 25.0f));
 
 	box4Ritem->ObjCBIndex = 6;
-	box4Ritem->Mat = mMaterials["scifi"].get();
+	box4Ritem->Mat = mMaterials["stonewall"].get();
 	box4Ritem->Geo = mGeometries["shapeGeo"].get();
 	box4Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	box4Ritem->IndexCount = box4Ritem->Geo->DrawArgs["box"].IndexCount;
@@ -1332,7 +1332,7 @@ void BlendApp::BuildRenderItems()
 	XMStoreFloat4x4(&box5Ritem->World, XMMatrixScaling(20.0f, 12.5f, 5.0f) * XMMatrixTranslation(-15.0f, 6.25f, 25.0f));
 
 	box5Ritem->ObjCBIndex = 7;
-	box5Ritem->Mat = mMaterials["scifi"].get();
+	box5Ritem->Mat = mMaterials["stonewall"].get();
 	box5Ritem->Geo = mGeometries["shapeGeo"].get();
 	box5Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	box5Ritem->IndexCount = box5Ritem->Geo->DrawArgs["box"].IndexCount;
@@ -1395,7 +1395,7 @@ void BlendApp::BuildRenderItems()
 		XMStoreFloat4x4(&leftCylRitem->World, rightCylWorld);
 
 		leftCylRitem->ObjCBIndex = objCBIndex++;
-		leftCylRitem->Mat = mMaterials["orient"].get();
+		leftCylRitem->Mat = mMaterials["cobblestone"].get();
 		leftCylRitem->Geo = mGeometries["shapeGeo"].get();
 		leftCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		leftCylRitem->IndexCount = leftCylRitem->Geo->DrawArgs["cylinder"].IndexCount;
@@ -1405,7 +1405,7 @@ void BlendApp::BuildRenderItems()
 		XMStoreFloat4x4(&rightCylRitem->World, leftCylWorld);
 
 		rightCylRitem->ObjCBIndex = objCBIndex++;
-		rightCylRitem->Mat = mMaterials["orient"].get();
+		rightCylRitem->Mat = mMaterials["cobblestone"].get();
 		rightCylRitem->Geo = mGeometries["shapeGeo"].get();
 		rightCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		rightCylRitem->IndexCount = rightCylRitem->Geo->DrawArgs["cylinder"].IndexCount;
