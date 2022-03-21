@@ -518,7 +518,7 @@ void BlendApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 	mMainPassCB.AmbientLight = { 0.40f, 0.34f, 0.26f, 1.0f };
 
-	//directional light simulating sunset
+	//directional light simulating sunrise
 	mMainPassCB.Lights[0].Position = { -25.0f, 20.5f, -25.0f };
 	mMainPassCB.Lights[0].Direction = { 1.0f, 1.0f, 1.0f };
 	mMainPassCB.Lights[0].Strength = { 0.9f, 0.5f, 0.4f };
@@ -533,8 +533,12 @@ void BlendApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.Lights[3].Position = { 25.0f, 20.5f, -25.0f };
 	mMainPassCB.Lights[3].Strength = { 35.0f, 20.0f, 0.0f };
 
-	mMainPassCB.Lights[4].Position = { 25.0f, 20.5f, 25.0f }; //+25.0f, 22.5f, -25.0f + i * 50.0f
+	mMainPassCB.Lights[4].Position = { 25.0f, 20.5f, 25.0f }; 
 	mMainPassCB.Lights[4].Strength = { 35.0f, 20.0f, 0.0f };
+
+	//point light under power reactor
+	mMainPassCB.Lights[5].Position = { 0.0f, 2.0f, 0.0f };
+	mMainPassCB.Lights[5].Strength = { 8.0f, 20.0f, 15.0f };
 
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
