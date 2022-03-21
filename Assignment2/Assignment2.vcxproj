@@ -147,7 +147,11 @@
     <ClCompile Include="..\..\..\GitHub\DirectX\Common\GeometryGenerator.cpp" />
     <ClCompile Include="..\..\..\GitHub\DirectX\Common\MathHelper.cpp" />
     <ClCompile Include="FrameResource.cpp" />
-    <ClCompile Include="Week4-6-ShapeComplete.cpp" />
+    <ClCompile Include="Waves.cpp" />
+    <ClCompile Include="Week4-6-ShapeComplete.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Week6-1-BlendApp-Transparency.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\GitHub\DirectX\Common\Camera.h" />
@@ -160,6 +164,7 @@
     <ClInclude Include="..\..\..\GitHub\DirectX\Common\MathHelper.h" />
     <ClInclude Include="..\..\..\GitHub\DirectX\Common\UploadBuffer.h" />
     <ClInclude Include="FrameResource.h" />
+    <ClInclude Include="Waves.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
